@@ -1,7 +1,10 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 import json
 
 app = Flask(__name__)
+CORS(app)
+
 
 @app.route('/get_parks', methods=['GET'])
 def get_parks():
