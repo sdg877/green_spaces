@@ -14,3 +14,23 @@ h1 {
   width: 100%;
 }
 
+input[type="text"] {
+  padding: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  max-width: 400px;
+  font-size: 16px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  font-size: 16px;
+  padding: 5px 0;
+}
+
+
+
