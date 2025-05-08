@@ -1,37 +1,48 @@
-import React, { useEffect } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import ParkMap from "./ParkMap";
+import "./App.css";
 
 function App() {
+  const [parks, setParks] = useState([]);
+  const [filteredParks, setFilteredParks] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
   useEffect(() => {
-    const mapElement = document.getElementById('map');
-    
-    // Prevent re-initialization of the map
-    if (mapElement._leaflet_id) return;
-  
-    const map = L.map('map').setView([51.5074, -0.1278], 11);
-  
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-  
-    fetch('http://127.0.0.1:5000/get_parks')
-      .then(res => res.json())
-      .then(parks => {
-        parks.forEach(park => {
-          const latlngs = park.coordinates.map(coord => [coord[0], coord[1]]);
-          L.polygon(latlngs, { color: 'green' }).addTo(map).bindPopup(park.name);
-        });
+    fetch("http://127.0.0.1:5000/get_parks")
+      .then((res) => res.json())
+      .then((data) => {
+        setParks(data);
+        setFilteredParks(data);
       })
-      .catch(err => console.error(err));
+      .catch((err) => console.error(err));
   }, []);
-  
+
+  useEffect(() => {
+    const filtered = parks.filter((park) =>
+      park.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredParks(filtered);
+  }, [searchTerm, parks]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   return (
     <div>
       <h1>London Parks</h1>
-      <div id="map"></div>
+      <input
+        type="text"
+        placeholder="Search for parks"
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
+      <ParkMap parks={filteredParks} />
+      <ul>
+        {filteredParks.map((park) => (
+          <li key={park.id}>{park.name}</li>
+        ))}
+      </ul>
     </div>
   );
 }
