@@ -6,6 +6,7 @@ function App() {
   const [parks, setParks] = useState([]);
   const [filteredParks, setFilteredParks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
 
   useEffect(() => {
     fetch("http://127.0.0.1:5000/get_parks")
@@ -18,14 +19,29 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const filtered = parks.filter((park) =>
-      park.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let filtered = parks;
+
+    if (searchTerm) {
+      filtered = filtered.filter((park) =>
+        park.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (filterCategory) {
+      filtered = filtered.filter((park) =>
+        park.name.toLowerCase().includes(filterCategory.toLowerCase())
+      );
+    }
+
     setFilteredParks(filtered);
-  }, [searchTerm, parks]);
+  }, [searchTerm, parks, filterCategory]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleFilterChange = (e) => {
+    setFilterCategory(e.target.value);
   };
 
   return (
@@ -37,11 +53,22 @@ function App() {
         value={searchTerm}
         onChange={handleSearchChange}
       />
+
+      <select onChange={handleFilterChange} value={filterCategory}>
+        <option value="">Filter by Category</option>
+        <option value="common">Common</option>
+        <option value="park">Park</option>
+        <option value="garden">Garden</option>
+      </select>
+
       <ParkMap parks={filteredParks} />
+
       <ul>
-        {filteredParks.map((park) => (
-          <li key={park.id}>{park.name}</li>
-        ))}
+        {filteredParks.length === 0 ? (
+          <li>No parks found</li>
+        ) : (
+          filteredParks.map((park) => <li key={park.id}>{park.name}</li>)
+        )}
       </ul>
     </div>
   );
